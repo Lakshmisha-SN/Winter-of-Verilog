@@ -110,7 +110,7 @@ module Sequence_multi(multiplicand,multiplier,clk,clear,ready,product);
   endmodule
             
             
-
+//parallel input and parallel output right shift registers
 module pipo_shift(Load_in,R_shift_in,load,shift,clk,clear,out);
   input [3:0] Load_in;
   input R_shift_in,clk,clear,load,shift;
@@ -134,7 +134,7 @@ module pipo_shift(Load_in,R_shift_in,load,shift,clk,clear,out);
     end
   
 endmodule
-
+// dflipflop
 module Dflip(in,clk,clear,out);
   
   input in,clk,clear;
@@ -149,7 +149,7 @@ module Dflip(in,clk,clear,out);
         out<=in;
     end
 endmodule
-
+//4_bit counter
 module counter(inc,clear,clk,out);
   
   input inc,clear,clk;
@@ -167,7 +167,7 @@ module counter(inc,clear,clk,out);
     end
 endmodule
 
-
+//4 bit 2x1Mux
 module Mux2_1(in1,in2,sel,out);
   input [3:0] in1,in2;
   input sel;
@@ -177,7 +177,7 @@ module Mux2_1(in1,in2,sel,out);
   
   
 endmodule
-
+//4 bit adder
 module Adder_4_bit(A,B,cin,sum,cout);
   input [3:0] A,B;
   input cin;
