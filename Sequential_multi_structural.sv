@@ -3,27 +3,28 @@
 
 module Sequence_multi(multiplicand,multiplier,clk,clear,ready,product);
   
+  //input ports and output ports
   input [3:0] multiplicand,multiplier;
   input clk,clear,ready;
   output [7:0] product;
-  reg load_A,load_B,shift_A,shift_B,inc;
+  
+  //intermediate registers and wires
+  reg load_A,load_B,shift_A,shift_B,inc; //control signals to control pipo register and counter
   wire [3:0] in2,B,Mul_out,sum;
   wire carry_o;
   wire cout;
-  
- 
   wire [3:0] counter_out;
   wire [3:0] mux_out;
   wire cin;
   
-  
+  //state register
   reg [3:0] present,next;
   
-  parameter idle=2'b00,shift=2'b01,add=2'b10,halt=2'b11;
+  parameter idle=2'b00,shift=2'b01,add=2'b10,halt=2'b11; //states
   
    
   
-  assign cin=0;
+  assign cin=0;// carry in of adder initialised to zero
   assign in2=0;
   
   Dflip carry (cout,clk,clear,carry_o);  
@@ -34,12 +35,14 @@ module Sequence_multi(multiplicand,multiplier,clk,clear,ready,product);
   Mux2_1 Mux1 (in2,multiplicand,Mul_out[0],mux_out); 
   Adder_4_bit addr1 (mux_out,B,cin,sum,cout);
     
-  
+ //state flipflop 
   always @(posedge clk)
       begin
         present<=next;
       end
     
+
+  //control unit
   always@ (present or ready)
       begin
         
@@ -47,13 +50,13 @@ module Sequence_multi(multiplicand,multiplier,clk,clear,ready,product);
         
         case(present)
           
-          idle : begin
+          idle : begin // load mul register with multiplier value
             
             if(ready==1)
               begin
                 load_B=1;load_A=0;shift_A=0;shift_B=0;inc=0;
                 
-                next=add;
+                next=add; // move to add state
               end
             else
               next=idle;
@@ -63,9 +66,9 @@ module Sequence_multi(multiplicand,multiplier,clk,clear,ready,product);
           
           add: begin
             
-             
+            // summ register with multiplicand or 0 depending on Mul_out[0] value-> taken care by Mux1
              load_B=0;load_A=1;shift_A=0;shift_B=0;inc=1;
-             next=shift;
+             next=shift; //move to shift state
              
            end
             
@@ -74,30 +77,30 @@ module Sequence_multi(multiplicand,multiplier,clk,clear,ready,product);
           
           shift: begin
             
-            
-            if(counter_out!=4)
+            // shift 
+            if(counter_out!=4) // multiplication not completed
               begin
                 
                load_B=0;load_A=0;shift_A=1;shift_B=1;inc=0;
-               next=add;
+               next=add; //move to add state
               end
             
             
-            else if(counter_out==4)
+            else if(counter_out==4) // multiplication completed
               begin
                 load_B=0;load_A=0;shift_A=1;shift_B=1;inc=0;
-                next=halt;
+                next=halt; 
               end
           end
             
-            halt: begin
+          halt: begin //end state
               
               load_B=0;load_A=0;shift_A=0;shift_B=0;inc=0;
-              next=halt;
+              next=halt; // be in halt
               
             end
             
-          default :next=idle;
+          default :next=idle; // default state is idle
         endcase
       end
   
